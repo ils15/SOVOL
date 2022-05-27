@@ -1,0 +1,28 @@
+G91 ;relative positioning
+G1 E-3 F3000 ;retract filament to prevent oozing inactive extruder
+G90
+M211 S0
+{if current_extruder==0}
+G0 X-50 ;
+{else}
+G0 X350 ;
+{endif}
+G91
+G1 E3 F3000 ;Compensate Filament Retract
+G90
+T[next_extruder]
+
+;Clean Nozzle Before Start Next Color
+{if next_extruder==0}
+G0 X-10 F15000
+G0 X-60
+G0 X-10
+G0 X-60
+{else}
+G0 X310 F15000
+G0 X360
+G0 X310
+G0 X360
+{endif}
+
+M211 S1

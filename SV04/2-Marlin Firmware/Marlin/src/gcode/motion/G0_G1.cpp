@@ -24,9 +24,7 @@
 #include "../../module/motion.h"
 
 #include "../../MarlinCore.h"
-#if ENABLED(RTS_AVAILABLE)
-  #include "../../lcd/e3v2/creality/LCD_RTS.h"
-#endif
+
 #if BOTH(FWRETRACT, FWRETRACT_AUTORETRACT)
   #include "../../feature/fwretract.h"
 #endif
@@ -34,7 +32,7 @@
 #include "../../sd/cardreader.h"
 
 #if ENABLED(NANODLP_Z_SYNC)
-  #include "../../module/stepper.h"
+  #include "../../module/planner.h"
 #endif
 
 extern xyze_pos_t destination;
@@ -51,13 +49,16 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
   if (IsRunning()
     #if ENABLED(NO_MOTION_BEFORE_HOMING)
       && !homing_needed_error(
-        LINEAR_AXIS_GANG(
+        NUM_AXIS_GANG(
             (parser.seen_test('X') ? _BV(X_AXIS) : 0),
           | (parser.seen_test('Y') ? _BV(Y_AXIS) : 0),
           | (parser.seen_test('Z') ? _BV(Z_AXIS) : 0),
           | (parser.seen_test(AXIS4_NAME) ? _BV(I_AXIS) : 0),
           | (parser.seen_test(AXIS5_NAME) ? _BV(J_AXIS) : 0),
-          | (parser.seen_test(AXIS6_NAME) ? _BV(K_AXIS) : 0))
+          | (parser.seen_test(AXIS6_NAME) ? _BV(K_AXIS) : 0),
+          | (parser.seen_test(AXIS7_NAME) ? _BV(U_AXIS) : 0),
+          | (parser.seen_test(AXIS8_NAME) ? _BV(V_AXIS) : 0),
+          | (parser.seen_test(AXIS9_NAME) ? _BV(W_AXIS) : 0))
       )
     #endif
   ) {
@@ -91,7 +92,7 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
       if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
         // When M209 Autoretract is enabled, convert E-only moves to firmware retract/recover moves
         if (fwretract.autoretract_enabled && parser.seen_test('E')
-          && !parser.seen(LINEAR_AXIS_GANG("X", "Y", "Z", AXIS4_STR, AXIS5_STR, AXIS6_STR))
+          && !parser.seen(STR_AXES_MAIN)
         ) {
           const float echange = destination.e - current_position.e;
           // Is this a retract or recover move?
@@ -129,9 +130,6 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
       TERN_(FULL_REPORT_TO_HOST_FEATURE, set_and_report_grblstate(M_IDLE));
     #else
       TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_grblstate_moving());
-    #endif
-    #if ENABLED(RTS_AVAILABLE)
-      RTS_PauseMoveAxisPage();
     #endif
   }
 }

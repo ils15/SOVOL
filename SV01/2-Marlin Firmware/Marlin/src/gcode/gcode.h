@@ -132,6 +132,8 @@
  *
  * M100 - Watch Free Memory (for debugging) (Requires M100_FREE_MEMORY_WATCHER)
  *
+ * M102 - Configure Bed Distance Sensor. (Requires BD_SENSOR)
+ *
  * M104 - Set extruder target temp.
  * M105 - Report current temperatures.
  * M106 - Set print fan speed.
@@ -262,6 +264,7 @@
  * M605 - Set Dual X-Carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
  * M665 - Set delta configurations: "M665 H<delta height> L<diagonal rod> R<delta radius> S<segments/s> B<calibration radius> X<Alpha angle trim> Y<Beta angle trim> Z<Gamma angle trim> (Requires DELTA)
  *        Set SCARA configurations: "M665 S<segments-per-second> P<theta-psi-offset> T<theta-offset> Z<z-offset> (Requires MORGAN_SCARA or MP_SCARA)
+ *        Set Polargraph draw area and belt length: "M665 S<segments-per-second> L<draw-area-left> R<draw-area-right> T<draw-area-top> B<draw-area-bottom> H<max-belt-length>"
  * M666 - Set/get offsets for delta (Requires DELTA) or dual endstops. (Requires [XYZ]_DUAL_ENDSTOPS)
  * M672 - Set/Reset Duet Smart Effector's sensitivity. (Requires DUET_SMART_EFFECTOR and SMART_EFFECTOR_MOD_PIN)
  * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
@@ -704,6 +707,11 @@ private:
     static void M100();
   #endif
 
+  #if ENABLED(BD_SENSOR)
+    static void M102();
+    static void M102_report(const bool forReplay=true);
+  #endif
+
   #if HAS_EXTRUDERS
     static void M104_M109(const bool isM109);
     FORCE_INLINE static void M104() { M104_M109(false); }
@@ -913,7 +921,7 @@ private:
     static void M290();
   #endif
 
-  #if HAS_BUZZER
+  #if HAS_SOUND
     static void M300();
   #endif
 

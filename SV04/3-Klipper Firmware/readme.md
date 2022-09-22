@@ -1,4 +1,4 @@
-Fist Klipper Release for SV04
+First Klipper Release for SV04
 
 Under Developing
 
